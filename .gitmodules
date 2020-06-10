@@ -1,0 +1,4 @@
+[submodule "dev-ops"]
+	path = {{cookiecutter.project_slug}}
+	url = git@github.com:lrothack/dev-ops.git
+	branch = cookiecutter
