@@ -1,6 +1,6 @@
 # Cookiecutter PyDevops
 
-Cookiecutter template for a dockerized dev-ops pipeline with SonarQube code quality monitoring.
+[Cookiecutter template](https://github.com/audreyr/cookiecutter) for a dockerized dev-ops pipeline with SonarQube code quality monitoring.
 
 - [Sample project](https://github.com/lrothack/dev-ops) for this cookiecutter (including
 	detailed documentation)
