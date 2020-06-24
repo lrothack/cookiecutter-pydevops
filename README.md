@@ -47,3 +47,5 @@ Then switch to the project directory and:
 	SonarQube server. Requires a local installation of [sonar-scanner](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/).
 - Run `make docker-build` in order to analyze, test, package and deploy in a multi-stage Docker
 	build.
+
+Advanced configurations can be made in the config sections of `Makefile`.
