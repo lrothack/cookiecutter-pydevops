@@ -45,7 +45,7 @@ Then switch to the project directory and:
 - Run `docker-compose -p sonarqube -f sonarqube/docker-compose.yml up -d` in order to start a SonarQube server.
 - Run `make sonar` in order to locally run `sonar-scanner` and report results to your local
 	SonarQube server. Requires a local installation of [sonar-scanner](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/).
-- Run `make docker-build` in order to analyze, test, package and deploy in a multi-stage Docker
-	build.
+- Run `make docker-build` in order to analyze, test, package, report to SonarQube and deploy in a multi-stage Docker
+	build. Test your docker image with `docker run`.
 
-Advanced configurations can be made in the config sections of `Makefile`.
+Advanced configurations can be made in the config sections of `Makefile`. See [lrothack/dev-ops](https://github.com/lrothack/dev-ops) for more information.
