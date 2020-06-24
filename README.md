@@ -1,15 +1,15 @@
 # Cookiecutter PyDevops
 
-[Cookiecutter template](https://github.com/audreyr/cookiecutter) for a dockerized dev-ops pipeline with SonarQube code quality monitoring.
+[Cookiecutter template](https://github.com/audreyr/cookiecutter) for a dockerized dev-ops pipeline with SonarQube code-quality monitoring.
 
 - [Sample project](https://github.com/lrothack/dev-ops) for this cookiecutter (including
 	detailed documentation)
-- This cookiecutter has been generated with command-line client [devopstemaplate](https://github.com/lrothack/dev-ops-admin)
+- This cookiecutter has been generated with the command-line client [devopstemplate](https://github.com/lrothack/dev-ops-admin)
 - Also check out [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) for additional Python package templates
 
 ## Features
 
-The template provides a minimal devops pipeline that supports:
+The template provides a minimal dev-ops pipeline that supports:
 
 - testing and deployment in a multi-stage [Docker](https://www.docker.com) environment
 - packaging with [setuptools](https://setuptools.readthedocs.io/en/latest/)
@@ -17,7 +17,7 @@ The template provides a minimal devops pipeline that supports:
 - code quality monitoring with [SonarQube](https://www.sonarqube.org)
 
 The dev-ops pipeline is mostly implemented in a `Makefile` and a `Dockerfile` which are
-independent of your Python application.
+independent of your Python code.
 
 ## Quickstart
 
@@ -48,4 +48,4 @@ Then switch to the project directory and:
 - Run `make docker-build` in order to analyze, test, package, report to SonarQube and deploy in a multi-stage Docker
 	build. Test your docker image with `docker run`.
 
-Advanced configurations can be made in the config sections of `Makefile`. See [lrothack/dev-ops](https://github.com/lrothack/dev-ops) for more information.
+Advanced configurations can be made in the *configuration* sections of `Makefile`. See [lrothack/dev-ops](https://github.com/lrothack/dev-ops) for more information.
