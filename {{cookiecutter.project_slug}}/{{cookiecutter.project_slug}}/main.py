@@ -2,6 +2,7 @@ import sys
 import platform
 import logging
 import argparse
+import {{cookiecutter.project_slug}}
 
 
 def parse_args(args_list):
