@@ -1,0 +1,9 @@
+{
+  "project_name": "",
+  "project_version": "0.1.0",
+  "project_url": "",
+  "project_description": "",
+  "author_name": "",
+  "author_email": "",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}"
+}

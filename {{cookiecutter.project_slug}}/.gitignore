@@ -1,0 +1,8 @@
+.coverage
+.scannerwork
+.codereports/
+.eggs/
+*.egg-info/
+build/
+dist/
+venv*/
