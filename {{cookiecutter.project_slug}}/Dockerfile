@@ -100,8 +100,8 @@ RUN pip install /dist/*.whl
 WORKDIR /home/user/app
 # Copy entrypoint.sh script from build stage
 COPY --from=build /app/entrypoint.sh .
-# Change owner
-RUN chown user:user . ; chown user:user entrypoint.sh
+# Change owner and access rights
+RUN chown user:user . ; chown user:user entrypoint.sh ; chmod a+x entrypoint.sh
 # Switch user/set user for running the app
 USER user
 # Specify entrypoint in json style 
