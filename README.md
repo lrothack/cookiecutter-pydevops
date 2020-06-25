@@ -1,20 +1,21 @@
 # Cookiecutter PyDevops
 
-[Cookiecutter template](https://github.com/audreyr/cookiecutter) for a dockerized dev-ops pipeline with SonarQube code-quality monitoring.
+Cookiecutter template for a dockerized dev-ops pipeline with SonarQube code-quality monitoring.
+[Cookiecutter](https://github.com/audreyr/cookiecutter) provides a command-line interface for creating projects from templates.
 
 - [Sample project](https://github.com/lrothack/dev-ops) for this cookiecutter (including
-	detailed documentation)
-- This cookiecutter has been generated with the command-line client [devopstemplate](https://github.com/lrothack/dev-ops-admin)
-- Also check out [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) for additional Python package templates
+	detailed documentation).
+- This cookiecutter has been generated with the command-line client [devopstemplate](https://github.com/lrothack/dev-ops-admin).
+- Also check out [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) for additional Python package templates.
 
 ## Features
 
 The template provides a minimal dev-ops pipeline that supports:
 
-- testing and deployment in a multi-stage [Docker](https://www.docker.com) environment
-- packaging with [setuptools](https://setuptools.readthedocs.io/en/latest/)
-- code analysis with [pylint](https://www.pylint.org/), [bandit](https://bandit.readthedocs.io/en/latest/), [pytest](https://docs.pytest.org/en/stable/) and [coverage](https://coverage.readthedocs.io/en/latest/)
-- code quality monitoring with [SonarQube](https://www.sonarqube.org)
+- testing and deployment in a multi-stage [Docker](https://www.docker.com) environment,
+- packaging with [setuptools](https://setuptools.readthedocs.io/en/latest/),
+- code analysis with [pylint](https://www.pylint.org/), [bandit](https://bandit.readthedocs.io/en/latest/), [pytest](https://docs.pytest.org/en/stable/) and [coverage](https://coverage.readthedocs.io/en/latest/),
+- code quality monitoring with [SonarQube](https://www.sonarqube.org).
 
 The dev-ops pipeline is mostly implemented in a `Makefile` and a `Dockerfile` which are
 independent of your Python code.
