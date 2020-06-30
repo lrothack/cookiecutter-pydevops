@@ -16,7 +16,7 @@ ARG SONARNOSCM=True
 # Installation directory for sonar-scanner
 ARG SONAR_SCANNER_HOME=/opt/sonar-scanner
 # sonar-scanner version, allows to control which version will be installed
-ARG SONAR_SCANNER_VERSION=4.3.0.2102
+ARG SONAR_SCANNER_VERSION=4.4.0.2170
 # Define environment variables based on arguments
 # Add sonar-scanner executable to PATH for sonar reporting
 ENV PATH=${SONAR_SCANNER_HOME}/bin:${PATH}
