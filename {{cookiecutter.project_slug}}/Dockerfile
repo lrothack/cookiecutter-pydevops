@@ -61,7 +61,8 @@ RUN if [ ${SONAR} = "True" ] ; then \
     ; else \
     make clean-all \
     && make install-dev \
-    && (make lint test || exit 0) \
+    && (make lint || exit 0) \
+    && make test \
     ;fi
 # Use Makefile in order to build a Python wheel from the app
 RUN make clean-all && make dist

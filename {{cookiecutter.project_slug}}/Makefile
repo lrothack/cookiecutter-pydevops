@@ -72,6 +72,8 @@ SONARHOST=localhost
 SONARPORT=9000
 # DISABLE/enable whether to include SCM (git) meta info in sonarqube report
 SONARNOSCM=False
+# Authentication
+SONARTOKEN=<auth_token>
 
 
 # --- Docker configuration ---
@@ -85,7 +87,7 @@ DOCKER = docker
 # running `make docker-build`, i.e., variables will be passed to Docker build
 # as build arguments
 # Enable/disable SonarQube reporting during Docker build
-DOCKERSONAR=True
+DOCKERSONAR=False
 # Report to sonar host (when running in Docker build)
 DOCKERSONARHOST=sonarqube
 # Report to sonar port (when running in Docker build)
@@ -151,11 +153,11 @@ dist: $(SETUPTOOLSFILES)
 ##                recommended)
 ##               (application sources will be symlinked to PYTHONPATH)
 install-dev: $(SETUPTOOLSFILES)
-	$(PIP) install -r requirements.txt
+	$(PIP) install -e .[dev]
 
 ## test:         Run Python unit tests with pytest and analyse coverage
 test:
-	-$(COVERAGE) run --source $(PACKAGE) -m $(PYTEST) $(TESTS)
+	$(COVERAGE) run --source $(PACKAGE) -m $(PYTEST) $(TESTS)
 	$(COVERAGE) report -m
 
 ## lint:         Run Python linter (bandit, pylint) and print output to terminal
@@ -183,6 +185,7 @@ sonar: $(SETUPTOOLSFILES)
 	-$(COVERAGE) run --source $(PACKAGE) -m $(PYTEST) --junit-xml=$(PYTESTREP) -o junit_family=xunit2 $(TESTS)
 	$(COVERAGE) xml -o $(COVERAGEREP)
 	$(SONARSCANNER) -Dsonar.host.url=http://$(SONARHOST):$(SONARPORT) \
+              -Dsonar.login=$(SONARTOKEN) \
               -Dsonar.projectKey=$(NAME) \
               -Dsonar.projectVersion=$(VERSION) \
               -Dsonar.sourceEncoding=UTF-8 \
@@ -215,7 +218,7 @@ ifeq ($(DOCKERSONAR), True)
 	$(info building Docker image within Docker network $(DOCKERNET))
 	$(info (make sure SonarQube is running in the same network))
 	$(info (run `docker-compose -p sonarqube -f sonarqube/docker-compose.yml up -d`))
-	$(DOCKER) build --rm --network=$(DOCKERNET) -t $(NAME) $(ROOT) \
+	DOCKER_BUILDKIT=0 $(DOCKER) build --rm --network=$(DOCKERNET) -t $(NAME) $(ROOT) \
 		--build-arg ENTRYPOINT=$(DOCKERENTRYPOINTEXEC) \
 		--build-arg SONARHOST=$(DOCKERSONARHOST) \
 		--build-arg SONARPORT=$(DOCKERSONARPORT) \

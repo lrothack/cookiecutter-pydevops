@@ -36,12 +36,19 @@ def parse_version(package_rpath):
             raise ValueError('Could not parse version string')
 
 
+# Name of the top-level import package (directory)
 pkg_name = '{{cookiecutter.project_slug}}'
 
+# Parse version
 version = parse_version(pkg_name)
 
+# Read Readme that will be used as long package description
 with open('README.md', 'r') as fh:
     description_long = fh.read()
+
+# Read list of Python package dependencies
+with open('requirements.txt', 'r') as fh:
+    install_requires = fh.read().splitlines()
 
 # ATTENTION: the name must match the name of the top-level import package
 # see Makefile variable PACKAGE.
@@ -58,9 +65,9 @@ setup(name=pkg_name,
       setup_requires=['setuptools >= 40.9.0',
                       'wheel'],
       # Package dependencies
-      install_requires=[],
-      # Defines dev environment containing additional dependencies
-      # (for linting, testing)
+      install_requires=install_requires,
+      # Defines dev environment containing development dependencies
+      # (for linting, testing, etc.)
       extras_require={'dev': ['pip >= 20.1.1',
                               'wheel',
                               'pytest',
