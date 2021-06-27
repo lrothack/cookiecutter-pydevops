@@ -60,7 +60,7 @@ setup(name=pkg_name,
       version=version,
       python_requires='>= 3.6',
       # Define the package sources.
-      packages=find_packages(include=[pkg_name]),
+      packages=find_packages(include=[pkg_name, f'{pkg_name}.*']),
       # Dependencies for running setuptools (triggered from Makefile)
       setup_requires=['setuptools >= 40.9.0',
                       'wheel'],
