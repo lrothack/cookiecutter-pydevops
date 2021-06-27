@@ -1,4 +1,3 @@
-
 # {{cookiecutter.project_name}}
 
 {{cookiecutter.project_description}}
@@ -11,4 +10,5 @@ This project is based on the [Python DevOps template](https://github.com/lrothac
 - testing and deployment in a multi-stage Docker environment
 - packaging with setuptools
 - code analysis with pylint, bandit, pytest and coverage
-- support for MongoDB, MlFlow
+- support for additional containerized components (MongoDB, MlFlow)
+
