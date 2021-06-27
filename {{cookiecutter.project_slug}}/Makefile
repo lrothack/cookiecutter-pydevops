@@ -4,6 +4,8 @@
 # Use only one statement per line and do not mix statements and comments on a
 # single line in order to allow for automatic editing.
 
+# ATTENTION: Running `make <target>` is only supported from the project directory
+#
 
 # --- Common ---
 #
@@ -13,11 +15,11 @@
 # Note that a single '=' is only evaluated when accessing the variable 
 #
 # Current working directory 
-CWD := ${CURDIR}
+CWD := "${CURDIR}"
 # Relative path to Makefile (from current working directory)
 MKFILE_PATH := $(lastword $(MAKEFILE_LIST))
 # Absolute path to Makefile's parent directory (project root)
-ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+ROOT := "$(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
 
 
 # --- Python ---
@@ -112,6 +114,8 @@ DOCKERENTRYPOINTEXEC=$(NAME)
 ## MAKEFILE for building and testing Python package including
 ## code analysis and reporting to SonarQube in a dockerized build environment
 ## 
+## ATTENTION: Running `make <target>` is only supported from the project directory
+## 
 ## Targets:
 ## 
 
@@ -194,17 +198,16 @@ sonar: $(SETUPTOOLSFILES)
               -Dsonar.scm.disabled=$(SONARNOSCM) \
               -Dsonar.python.xunit.reportPath=$(PYTESTREP) \
               -Dsonar.python.coverage.reportPaths=$(COVERAGEREP) \
-              -Dsonar.python.pylint.reportPath=$(PYLINTREP) \
+              -Dsonar.python.pylint.reportPaths=$(PYLINTREP) \
               -Dsonar.python.bandit.reportPaths=$(BANDITREP)
 
 
 # --- Docker targets ---
 
-## docker-build: Build docker image for Python application including
-##               code analysis and reporting to SonarQube (multi-stage build)
+## docker-build: Build docker image for Python application with code analysis
+##               (SonarQube reporting during Docker build can be enabled
+##                with `make docker-build DOCKERSONAR=True`)
 ##               (requires SonarQube server, see target 'sonar' above)
-##               (SonarQube reporting during Docker build can be disabled
-##                with `make docker-build DOCKERSONAR=False`)
 #                (WARNING: do not run in Docker, Docker-in-Docker!)
 # The if-statement is required in order to determine if we have to run the
 # build in the $(DOCKERNET) network
