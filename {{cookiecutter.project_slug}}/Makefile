@@ -14,12 +14,10 @@
 # immediate evaluation with ':='
 # Note that a single '=' is only evaluated when accessing the variable 
 #
-# Current working directory 
+# Current working directory
 CWD := "${CURDIR}"
 # Relative path to Makefile (from current working directory)
 MKFILE_PATH := $(lastword $(MAKEFILE_LIST))
-# Absolute path to Makefile's parent directory (project root)
-ROOT := "$(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
 
 
 # --- Python ---
@@ -44,66 +42,63 @@ NAME=$(shell $(PYTHON) setup.py --name)
 # Version of the application defined in setup.py
 VERSION=$(shell $(PYTHON) setup.py --version)
 # Name of the directory where application sources are located
-PACKAGE=$(ROOT)/$(NAME)
+PACKAGE=./$(NAME)
 # Directory where unittests are located
-TESTS=$(ROOT)/tests
+TESTS=./tests
 
 
-# --- SonarQube configuration ---
+# --- Linting/Testing configuration ---
 #
-# SonarQube client, test and code analysis tools
-# Note that the test / code analysis tools are not specific to SonarQube but
-# are only required for SonarQube reporting in the Makefile
-SONARSCANNER = sonar-scanner
+# Executables
 PYTEST = pytest
 COVERAGE = coverage
 PYLINT = pylint
 BANDIT = bandit
 # Directory where to save linting and testing reports
-REPDIR=$(CWD)/.codereports
+REPDIR=./.codereports
 # Report result files
 PYTESTREP=$(REPDIR)/pytest.xml
 COVERAGEREP=$(REPDIR)/coverage.xml
 PYLINTREP=$(REPDIR)/pylint.txt
 BANDITREP=$(REPDIR)/bandit.json
-#
-# Configuration variables for local sonarqube reporting with `make sonar`
-# Report to sonar host (when running locally)
-SONARHOST=localhost
-# Report to sonar port (when running locally)
-SONARPORT=9000
-# DISABLE/enable whether to include SCM (git) meta info in sonarqube report
-SONARNOSCM=False
-# Authentication
-SONARTOKEN=<auth_token>
 
 
 # --- Docker configuration ---
-# Note that the Docker configuration is mostly needed for SonarQube reporting
-# from Docker besides the definition of the SonarQube executable 
 #
 # Docker executable
 DOCKER = docker
-#
-# Configuration variables for sonarqube reporting within Docker build when
-# running `make docker-build`, i.e., variables will be passed to Docker build
-# as build arguments
-# Enable/disable SonarQube reporting during Docker build
-DOCKERSONAR=False
-# Report to sonar host (when running in Docker build)
-DOCKERSONARHOST=sonarqube
-# Report to sonar port (when running in Docker build)
-DOCKERSONARPORT=9000
-# DISABLE/enable sonarqube SCM (git) support (when running in Docker build)
-DOCKERSONARNOSCM=True
-# Docker network for running the Docker build. Sonarqube server must be hosted
-# in the same network at $DOCKERSONARHOST:$DOCKERSONARPORT
-# Only evaluated if $DOCKERSONAR==True
-DOCKERNET=sonarqube_net
 # Name of the executable that is to be run in the Docker entry point script
 # (entrypoint.sh). It is expected that there exists an executable
 # called $DOCKERENTRYPOINTEXEC in the PATH of the Docker container. 
 DOCKERENTRYPOINTEXEC=$(NAME)
+# Files required to build a docker image for the Python project
+DOCKERFILES = Dockerfile entrypoint.sh
+
+
+# --- SonarQube client configuration ---
+#
+# Authentication
+SONARTOKEN=<auth_token>
+# Report to sonar URL
+SONARURL=http://sonarqube:9000
+# DISABLE/enable whether to include SCM (git) meta info in sonarqube report
+SONARNOSCM=False
+# Connect sonar-scanner Docker container to Docker network
+DOCKERNET=sonarqube_net
+# Docker command for running sonar-scanner container
+# make sure to allocate at least 4GB RAM in the Docker resource config
+# if SonarQube server and SonarScanner are running simultaneously
+SONARSCANNER=$(DOCKER) run \
+    --network=$(DOCKERNET) \
+    --rm -v $(CWD):/usr/src \
+    sonarsource/sonar-scanner-cli:4.6
+#
+# Local sonar-scanner installation
+#
+# Report to sonar URL
+# SONARURL=http://localhost:9000
+# Path to executable or name of executable if on PATH
+# SONARSCANNER=sonar-scanner
 
 
 # --- Common targets ---
@@ -121,7 +116,7 @@ DOCKERENTRYPOINTEXEC=$(NAME)
 
 ## help:         Print this comment-generated help message
 # reads contents of this file and expects that this file is called 'Makefile'
-help:
+help: $(MKFILE_PATH)
 	@sed -n 's/^## //p' $(MKFILE_PATH)
 
 ## clean:        Clean up auto-generated files
@@ -143,9 +138,15 @@ clean-all: clean
 
 # --- Python targets ---
 
+# Check if project files exist in current working directory, otherwise stop.
+$(PACKAGE):
+	$(error "Python project files missing in working directory ($@)")
+# Check if test files exist in current working directory, otherwise stop.
+$(TESTS):
+	$(error "Python test files missing in working directory ($@)")
 # Check if setuptools files exist in current working directory, otherwise stop.
 $(SETUPTOOLSFILES):
-	$(error "Python packaging files missing in working directory ($(SETUPTOOLSFILES))")
+	$(error "Python packaging files missing in working directory ($@)")
 
 ## dist:         Build a Python wheel with setuptools (based on setup.py)
 dist: $(SETUPTOOLSFILES)
@@ -160,35 +161,43 @@ install-dev: $(SETUPTOOLSFILES)
 	$(PIP) install -e .[dev]
 
 ## test:         Run Python unit tests with pytest and analyse coverage
-test:
+# check SETUPTOOLSFILES since setuptools is used to generate the PACKAGE name
+test: $(SETUPTOOLSFILES) $(PACKAGE) $(TESTS)
+	@echo "\n\nUnit Tests\n----------\n"
 	$(COVERAGE) run --source $(PACKAGE) -m $(PYTEST) $(TESTS)
+	@echo "\n\nUnit Test Code Coverage\n-----------------------\n"
 	$(COVERAGE) report -m
 
 ## lint:         Run Python linter (bandit, pylint) and print output to terminal
-lint:
+# check SETUPTOOLSFILES since setuptools is used to generate the PACKAGE name
+lint: $(SETUPTOOLSFILES) $(PACKAGE)
+	@echo "\n\nBandit Vulnerabilities\n----------------------\n"
 	-$(BANDIT) -r $(PACKAGE)
+	@echo "\n\nPylint Code Analysis\n--------------------\n"
 	$(PYLINT) --output-format=colorized --reports=n --exit-zero $(PACKAGE)
 
 
 # --- SonarQube targets ---
 
 ## sonar:        Report code analysis and test coverage results to SonarQube
-##               (requires SonarQube server, run:
+##               (requires SonarQube server, to run server in Docker:
 ##                `docker-compose -p sonarqube \
 ##                                -f sonarqube/docker-compose.yml up -d`)
 #                (requires code analysis dependencies, 
-#                 intall with `make install-dev`)
-#                (requires SonarQube client sonar-scanner, 
-#                 install with `brew sonar-scanner` or see ./Dockerfile)
+#                 intall with `make install-dev`
+#                 ATTENTION: make sure to allocate at least 4GB RAM in the 
+#                 Docker resource configuration when running sonar server 
+#                 and sonar scanner containers simulataneously)
 # leading dash (in front of commands, not parameters) ignores error codes,
 # `make` would fail if test case fails or linter reports infos/warnings/errors.
-sonar: $(SETUPTOOLSFILES)
+# check SETUPTOOLSFILES since setuptools is used to generate PACKAGE / NAME
+sonar: $(SETUPTOOLSFILES) $(PACKAGE) $(TESTS)
 	@mkdir -p $(REPDIR)
 	-$(BANDIT) -r $(PACKAGE) --format json >$(BANDITREP)
 	$(PYLINT) $(PACKAGE) --exit-zero --reports=n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" > $(PYLINTREP)
 	-$(COVERAGE) run --source $(PACKAGE) -m $(PYTEST) --junit-xml=$(PYTESTREP) -o junit_family=xunit2 $(TESTS)
 	$(COVERAGE) xml -o $(COVERAGEREP)
-	$(SONARSCANNER) -Dsonar.host.url=http://$(SONARHOST):$(SONARPORT) \
+	$(SONARSCANNER) -Dsonar.host.url=$(SONARURL) \
               -Dsonar.login=$(SONARTOKEN) \
               -Dsonar.projectKey=$(NAME) \
               -Dsonar.projectVersion=$(VERSION) \
@@ -205,36 +214,22 @@ sonar: $(SETUPTOOLSFILES)
 # --- Docker targets ---
 
 ## docker-build: Build docker image for Python application with code analysis
-##               (SonarQube reporting during Docker build can be enabled
-##                with `make docker-build DOCKERSONAR=True`)
-##               (requires SonarQube server, see target 'sonar' above)
-#                (WARNING: do not run in Docker, Docker-in-Docker!)
-# The if-statement is required in order to determine if we have to run the
-# build in the $(DOCKERNET) network
 # Note: info is parsed and immediately printed by make, echo is executed in a
 # shell as are the other commands in the recipe.
-docker-build: $(SETUPTOOLSFILES)
-	$(info WARNING: Do not run this target within a Docker build/container)
-	$(info Running Docker build in context: $(ROOT))
+# check SETUPTOOLSFILES since setuptools is used to generate the package NAME
+docker-build: $(SETUPTOOLSFILES) $(DOCKERFILES)
+	$(info Running Docker build in context: ./ )
 	$(info ENTRYPOINT executable: $(DOCKERENTRYPOINTEXEC))
-ifeq ($(DOCKERSONAR), True)
-	$(info building Docker image within Docker network $(DOCKERNET))
-	$(info (make sure SonarQube is running in the same network))
-	$(info (run `docker-compose -p sonarqube -f sonarqube/docker-compose.yml up -d`))
-	DOCKER_BUILDKIT=0 $(DOCKER) build --rm --network=$(DOCKERNET) -t $(NAME) $(ROOT) \
-		--build-arg ENTRYPOINT=$(DOCKERENTRYPOINTEXEC) \
-		--build-arg SONARHOST=$(DOCKERSONARHOST) \
-		--build-arg SONARPORT=$(DOCKERSONARPORT) \
-		--build-arg SONARNOSCM=$(DOCKERSONARNOSCM)
-else
-	$(info building Docker image without reporting to SonarQube)
-	$(DOCKER) build --rm -t $(NAME) $(ROOT) \
-		--build-arg ENTRYPOINT=$(DOCKERENTRYPOINTEXEC) \
-		--build-arg SONAR=False
-endif
-	@echo "build finished, run the container with \`docker run --rm $(NAME)\`"
+	$(eval REPORTFILE:=code-analyses.txt)
+	$(DOCKER) build --rm -t $(NAME) ./ \
+		--build-arg REPORTFILE=$(REPORTFILE) \
+		--build-arg ENTRYPOINT=$(DOCKERENTRYPOINTEXEC)
+	@echo "\n### CODE ANALYSIS REPORT ###\n"
+	$(DOCKER) run -it --entrypoint="more" --rm $(NAME) $(REPORTFILE)
+	@echo "\n\nbuild finished, run the container with \`docker run --rm $(NAME)\`"
 
 ## docker-tag:   Tag the 'latest' image created with `make docker-build` with
 ##               the current version that is defined in setup.cfg/setup.py
+# check SETUPTOOLSFILES since setuptools is used to generate NAME and VERSION
 docker-tag: $(SETUPTOOLSFILES)
 	$(DOCKER) tag $(NAME) $(NAME):$(VERSION)

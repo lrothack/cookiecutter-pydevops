@@ -11,4 +11,3 @@ This project is based on the [Python DevOps template](https://github.com/lrothac
 - packaging with setuptools
 - code analysis with pylint, bandit, pytest and coverage
 - support for additional containerized components (MongoDB, MlFlow)
-
