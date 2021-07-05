@@ -11,7 +11,7 @@ ARG REPORTFILE=code-analyses.txt
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-# Install debian packages required for sonar-scanner installation
+# Install debian packages required for executing make targets
 RUN apt-get update \
     && apt-get install -y --no-install-recommends make \
     && rm -rf /var/lib/apt/lists/*
@@ -31,7 +31,7 @@ RUN make clean-all && \
 RUN make clean-all && make dist
 
 # Start a new stage for the deployment image in order to minimize image size
-# --> sonar-scanner and test libs are not required here 
+# --> libs for code analysis are not required in the final image
 FROM python:3.8-slim-buster
 
 # Define value of ENTRYPOINT environment variable with build-arg ENTRYPOINT.
@@ -64,9 +64,9 @@ COPY --from=build /app/dist/*.whl /dist/
 RUN pip install /dist/*.whl
 # Switch to working directory in user's home, dir exists due to useradd param
 WORKDIR /home/user/app
-# Copy entrypoint.sh script from build stage 
+# Copy entrypoint.sh script from build stage
 COPY --from=build /app/entrypoint.sh .
-# Copy REPORTFILE from build stage 
+# Copy REPORTFILE from build stage
 COPY --from=build /app/${REPORTFILE} .
 # Change owner
 RUN chown user:user . ; \
