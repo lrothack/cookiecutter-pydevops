@@ -4,6 +4,7 @@ Dockerfile
 .pytest_cache
 .scannerwork
 .codereports/
+.sonartoken
 .eggs
 *.egg-info/
 .vscode

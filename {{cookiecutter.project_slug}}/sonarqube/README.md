@@ -11,7 +11,7 @@ Start SonarQube server in a Docker container and report Python code analyses:
 
 2. Login at `http://localhost:9000`, set a new password and generate/copy an authentication token (*Administration - Users*).
 
-3. Update `SONARTOKEN` variable in [`Makefile`](../Makefile) with the token generated before.
+3. Store the authentication token in the local file `.sonartoken`. The token is read in [`Makefile`](../Makefile) and stored in the `SONARTOKEN` variable.
 
 4. Generate and send report:
 
@@ -37,7 +37,7 @@ Below you will find a detailed description on how to use [SonarQube with Docker]
     - **Attention:** database credentials are specified over the command-line. This is insecure. For example, the credentials will be visible to any user by calling `top`, try `docker-compose top`.
 2. Access SonarQube at `http://localhost:9000` and login as *admin*/*admin*
 3. Generate a new password for the *admin* user. Go to *Administration - Security - Users* in order to create additional users as needed.
-4. Go to *Administration - Security - Users* and click *Update Tokens* in the *Tokens* column for a chosen user in order to generate an **authentication token**. Copy the token and update the variable `SONARTOKEN` in [`Makefile`](../Makefile) for automatic code quality reporting with `sonar-scanner` (see below).
+4. Go to *Administration - Security - Users* and click *Update Tokens* in the *Tokens* column for a chosen user in order to generate an **authentication token**. Copy the token and store it in the local file `.sonartoken`. [`Makefile`](../Makefile) will load the token into the variable `SONARTOKEN` for automatic code quality reporting with `sonar-scanner` (see below).
 5. There is no need to manually create a project in the web interface as it can be created automatically by publishing analysis reports (see below).
 6. Stop and remove the containers with
 
@@ -57,7 +57,7 @@ SonarScanner is run within the [SonarScanner CLI Docker image](https://github.co
     pip install -r requirements.txt
     ```
 
-2. Configure the SonarQube project with SonarScanner command-line arguments in the [Makefile](../Makefile) (see make target `sonar`). **Important:** Generate an authentication token in the Sonarqube web interface (log in as *admin* user and go to *Administration - Security - Users*). Copy the token and update the variable `SONARTOKEN` in [`Makefile`](../Makefile) (also see above).
+2. Configure the SonarQube project with SonarScanner command-line arguments in the [Makefile](../Makefile) (see make target `sonar`). **Important:** Generate an authentication token in the Sonarqube web interface (log in as *admin* user and go to *Administration - Security - Users*). Copy the token and store it in the local file `.sonartoken` (also see above).
 
 3. Generate and send report:
 
@@ -157,5 +157,3 @@ To deactivate the `venv` after testing the container run: `deactivate`.
     ```bash
     docker stop sonarqube
     ```
-
-

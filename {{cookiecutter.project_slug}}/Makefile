@@ -77,8 +77,16 @@ DOCKERFILES = Dockerfile entrypoint.sh
 
 # --- SonarQube client configuration ---
 #
-# Authentication
-SONARTOKEN=<auth_token>
+# Authentication token variable
+SONARTOKEN=
+# Authentication token file
+# (will be read if file exists and SONARTOKEN variable is not defined)
+SONARTOKENFILE=.sonartoken
+ifndef SONARTOKEN
+ifneq (,$(wildcard $(SONARTOKENFILE)))
+SONARTOKEN=$(strip $(shell cat $(SONARTOKENFILE)))
+endif
+endif
 # Report to sonar URL
 SONARURL=http://sonarqube:9000
 # DISABLE/enable whether to include SCM (git) meta info in sonarqube report
@@ -103,7 +111,7 @@ SONARSCANNER=$(DOCKER) run \
 
 # --- Common targets ---
 
-.PHONY: help clean clean-all dist install-dev test pylint sonar docker-build docker-tag
+.PHONY: help clean clean-all dist install-dev test lint sonar docker-build docker-tag
 
 ## 
 ## MAKEFILE for building and testing Python package including
