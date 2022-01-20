@@ -42,7 +42,7 @@ Then switch to the project directory and:
 - Run `make test` in order to run unit tests with pytest and coverage.
 - Run `make dist` in order to build a Python package (binary and source).
 - Run `docker-compose -p sonarqube -f sonarqube/docker-compose.yml up -d` in order to start a SonarQube server.
-- Run `make sonar` in order to run `sonar-scanner` and report results to your local SonarQube server.
+- Run `make sonar` in order to run `sonar-scanner` and report results to your local SonarQube server. Make sure to create a SonarQube authentication token before. Save the token in the file `.sonartoken` within your project directory.
 - Run `make docker-build` in order to analyze, test, package and deploy in a multi-stage Docker build. Test your docker image with `docker run`.
 
 Advanced configurations can be made in the *configuration* sections of `Makefile`. See [lrothack/dev-ops](https://github.com/lrothack/dev-ops) for more information.
