@@ -75,7 +75,7 @@ RUN chown user:user . ; \
 # Switch user/set user for running the app
 USER user
 # Specify entrypoint in json style 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["bash", "./entrypoint.sh"]
 # Provide default args with CMD. Default args are overridden by command-line
 # arguments to docker run on the command-line.
 # CMD ["--help"]
