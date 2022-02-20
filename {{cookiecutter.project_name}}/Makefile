@@ -137,9 +137,9 @@ clean:
 clean-all: clean
 	@rm -rf .coverage .scannerwork
 	@rm -rf .pytest_cache
-	@rm -rf $(REPDIR)
-	@rm -rf $(NAME).egg-info
-	@rm -rf $(PACKAGE)/$(NAME).egg-info
+	@rm -rf ./$(REPDIR)
+	@rm -rf ./$(NAME).egg-info
+	@rm -rf ./$(PACKAGE)/$(NAME).egg-info
 	@rm -rf build
 	@rm -rf dist
 
@@ -166,6 +166,7 @@ dist: $(SETUPTOOLSFILES)
 ##                recommended)
 ##               (application sources will be symlinked to PYTHONPATH)
 install-dev: $(SETUPTOOLSFILES)
+	$(PIP) install wheel
 	$(PIP) install -e .[dev]
 
 ## test:         Run Python unit tests with pytest and analyse coverage
