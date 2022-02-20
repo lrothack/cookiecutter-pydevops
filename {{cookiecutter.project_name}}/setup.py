@@ -25,47 +25,53 @@ def parse_version(package_rpath):
         ValueError: if the parser could not match the version definition
     """
     init_fpath = os.path.join(package_rpath, '__init__.py')
-    with open(init_fpath, 'r') as fh:
-        init_contents = fh.read()
+    with open(init_fpath, 'r', encoding='utf-8') as handle:
+        init_contents = handle.read()
         ver_re = r"^__version__ ?= ?['\"]([^'\"]*)['\"]"
         match = re.search(ver_re, init_contents, re.M)
         if match:
             version = match.group(1)
             return version
-        else:
-            raise ValueError('Could not parse version string')
+        raise ValueError('Could not parse version string')
+
+
+def read_file(filepath):
+    """Read file as text
+
+    Params:
+        filename: relative/absolute path to the file
+    Returns:
+        contents as str
+    """
+    with open(filepath, 'r', encoding='utf-8') as handle:
+        return handle.read()
 
 
 # Name of the top-level import package (directory)
-pkg_name = '{{cookiecutter.project_slug}}'
+PKG_NAME = '{{cookiecutter.project_slug}}'
 
 # Parse version
-version = parse_version(pkg_name)
+VERSION = parse_version(PKG_NAME)
 
 # Read Readme that will be used as long package description
-with open('README.md', 'r') as fh:
-    description_long = fh.read()
+DESCRIPTION_LONG = read_file('README.md')
 
 # Read list of Python package dependencies
-with open('requirements.txt', 'r') as fh:
-    install_requires = fh.read().splitlines()
+INSTALL_REQUIRES = read_file('requirements.txt').splitlines()
 
 # ATTENTION: the name must match the name of the top-level import package
 # see Makefile variable PACKAGE.
 # Naming the project as the top-level import package is also consistent with
 # conventions.
-setup(name=pkg_name,
+setup(name=PKG_NAME,
       # The version string will be included in your Python package
       # https://setuptools.readthedocs.io/en/latest/setuptools.html#specifying-your-project-s-version
-      version=version,
-      python_requires='>= 3.6',
+      version=VERSION,
+      python_requires='>= 3.8',
       # Define the package sources.
-      packages=find_packages(include=[pkg_name, f'{pkg_name}.*']),
-      # Dependencies for running setuptools (triggered from Makefile)
-      setup_requires=['setuptools >= 40.9.0',
-                      'wheel'],
+      packages=find_packages(include=[PKG_NAME, f'{PKG_NAME}.*']),
       # Package dependencies
-      install_requires=install_requires,
+      install_requires=INSTALL_REQUIRES,
       # Defines dev environment containing development dependencies
       # (for linting, testing, etc.)
       extras_require={'dev': ['pip >= 20.1.1',
@@ -88,7 +94,7 @@ setup(name=pkg_name,
       # environment, e.g., a virtual environment or /usr/local/bin
       entry_points={
           'console_scripts': [
-              f'{pkg_name}={pkg_name}.main:main',
+              f'{PKG_NAME}={PKG_NAME}.main:main',
           ],
       },
       # Data files should always be part of the package and you should avoid
@@ -115,7 +121,7 @@ setup(name=pkg_name,
       author='{{cookiecutter.author_name}}',
       author_email='{{cookiecutter.author_email}}',
       description='{{cookiecutter.project_description}}',
-      long_description=description_long,
+      long_description=DESCRIPTION_LONG,
       long_description_content_type='text/markdown',
       # keywords = 'keyword1, keyword2, keyword3'
       url='{{cookiecutter.project_url}}',
@@ -134,8 +140,6 @@ setup(name=pkg_name,
           'Operating System :: OS Independent',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
       ]
       )
